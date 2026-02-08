@@ -22,6 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -203,6 +204,27 @@ public class UsersService {
         Users u = usersRepository.findUsersById(id);
         if (u == null) return ResponseEntity.notFound().build();
 
+
+        if (name == null || name.trim().isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Name is required"
+            );
+        }
+        if (email == null || email.trim().isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Email is required"
+            );
+        }
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        if (!email.matches(emailRegex)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid email format"
+            );
+        }
+
         boolean sensitiveChange =
                 (file != null && !file.isEmpty()) ||
                         (name != null && !name.equals(u.getName()));
@@ -211,6 +233,7 @@ public class UsersService {
         Users existingWithSameName = usersRepository.findUsersByName(name);
         if (existingWithSameName != null && !existingWithSameName.getId().equals(id))
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
+
 
         u.setName(name);
         u.setEmail(email);

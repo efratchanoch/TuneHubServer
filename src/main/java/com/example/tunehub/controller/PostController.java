@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -147,7 +148,7 @@ public class PostController {
 
     @PostMapping("/uploadPost")
     public ResponseEntity<PostResponseDTO> createPost(
-            @RequestPart("data") PostUploadDTO dto,
+            @Valid @RequestPart("data") PostUploadDTO dto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @RequestPart(value = "audio", required = false) MultipartFile audio,
             @RequestPart(value = "video", required = false) MultipartFile video) {
