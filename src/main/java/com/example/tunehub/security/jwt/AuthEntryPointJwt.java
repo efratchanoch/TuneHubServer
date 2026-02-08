@@ -1,0 +1,38 @@
+package com.example.tunehub.security.jwt;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+
+@Component
+public class AuthEntryPointJwt implements AuthenticationEntryPoint {
+
+    //    @Override
+//    public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
+//        if (httpServletRequest.getRequestURI().startsWith("/api/users/countActive")) {
+//            return;
+//        }
+//
+//       System.out.println(e);
+//        httpServletResponse.sendError(httpServletResponse.SC_UNAUTHORIZED);
+//    }
+    @Override
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException e) throws IOException {
+
+        String uri = request.getRequestURI();
+
+        if (uri.equals("/api/users/me")) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+    }
+}
