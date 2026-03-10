@@ -209,8 +209,9 @@ public class UsersService {
 
         String originalPasswordHash = u.getPassword();
         Users existingWithSameName = usersRepository.findUsersByName(name);
-        if (existingWithSameName != null && !existingWithSameName.getId().equals(id))
+        if (existingWithSameName != null && existingWithSameName.getId().longValue() != id.longValue()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
 
         u.setName(name);
         u.setEmail(email);

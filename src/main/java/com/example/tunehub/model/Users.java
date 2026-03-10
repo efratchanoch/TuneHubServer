@@ -27,6 +27,7 @@ public class Users {
     private String description;
 
     @ElementCollection(targetClass = EUserType.class)
+
     @CollectionTable(name = "user_types", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     private Set<EUserType> userTypes = new HashSet<>();
@@ -50,24 +51,24 @@ public class Users {
     @ManyToOne(fetch = FetchType.EAGER)
     private Teacher teacher;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Teacher teacherDetails;
 
     private String imageProfilePath;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SheetMusic> sheetsMusic;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> receivedNotifications;
 
-    @OneToMany(mappedBy = "actor")
+    @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> sentNotifications;
 
     @Column(nullable = false)
@@ -76,6 +77,7 @@ public class Users {
     // Security
     @ManyToMany
     private Set<Role> roles = new HashSet<>();
+
     public Users() {
     }
 
@@ -293,9 +295,6 @@ public class Users {
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
-
-
-
 
 
 }

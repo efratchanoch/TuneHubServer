@@ -5,6 +5,7 @@ import com.example.tunehub.dto.PostUploadDTO;
 import com.example.tunehub.model.*;
 import com.example.tunehub.service.*;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -147,7 +148,7 @@ public class PostController {
 
     @PostMapping("/uploadPost")
     public ResponseEntity<PostResponseDTO> createPost(
-            @RequestPart("data") PostUploadDTO dto,
+            @Valid @RequestPart("data") PostUploadDTO dto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @RequestPart(value = "audio", required = false) MultipartFile audio,
             @RequestPart(value = "video", required = false) MultipartFile video) {
