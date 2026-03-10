@@ -43,6 +43,7 @@ public record SheetMusicUploadDTO(
         @Size(max = 255, message = "Composer name cannot exceed 255 characters.")
         String composer,
 
+        @NotBlank
         @Size(max = 255, message = "Lyricist name cannot exceed 255 characters.")
         String lyricist
 ) {}
