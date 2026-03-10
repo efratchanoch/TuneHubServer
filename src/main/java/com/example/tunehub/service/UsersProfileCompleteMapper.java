@@ -2,6 +2,7 @@ package com.example.tunehub.service;
 
 import com.example.tunehub.dto.UsersProfileCompleteDTO;
 import com.example.tunehub.model.Users;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -14,5 +15,8 @@ public interface UsersProfileCompleteMapper {
     @Mapping(target = "canDelete", ignore = true)
     @Mapping(target = "teacherDetails", source = "teacher")
     @Mapping(target = "teacher", source = "teacher.user")
-    UsersProfileCompleteDTO toDto(Users user);
+    UsersProfileCompleteDTO toDto(Users user,
+                                  @Context Long currentUserId,
+                                  @Context LikeRepository likeRepo,
+                                  @Context FavoriteRepository favRepo);
 }

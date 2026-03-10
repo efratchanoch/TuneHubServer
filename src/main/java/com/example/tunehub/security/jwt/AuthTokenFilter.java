@@ -22,50 +22,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-
-//    @Override
-//
-//    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-//
-//        String path = httpServletRequest.getRequestURI();
-//
-//        if (path.startsWith("/api/users/signin") || path.startsWith("/api/users/signup")) {
-//            filterChain.doFilter(httpServletRequest, httpServletResponse);
-//            return;
-//        }
-//
-//        try {
-//
-//            String jwt = jwtUtils.getJwtFromCookies(httpServletRequest);
-//            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-//                String userName = jwtUtils.getUserNameFromJwtToken(jwt);
-//                UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
-//
-//                UsernamePasswordAuthenticationToken authentication =
-//                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-//                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-//
-//                SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//            }
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException("JWT verification failed: " + e.getMessage(), e);
-//        }
-//
-//        filterChain.doFilter(httpServletRequest, httpServletResponse);
-//    }
-//
-//    private String parseJwt(HttpServletRequest request) {
-//        String headerAuth = request.getHeader("Authorization");
-//
-//        if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
-//            return headerAuth.substring(7);
-//        }
-//
-//        return jwtUtils.getJwtFromCookies(request);
-//    }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {

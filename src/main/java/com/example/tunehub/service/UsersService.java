@@ -42,16 +42,12 @@ public class UsersService {
     private final TeacherMapper teacherMapper;
     private final JwtUtils jwtUtils;
     private final InteractionService interactionService;
-
+    private final UsersProfileCompleteMapper usersProfileCompleteMapper;
+    private final LikeRepository likeRepository;
+    private final FavoriteRepository favoriteRepository;
 
     @Autowired
-    public UsersService(UsersRepository usersRepository,
-                        UsersMapper usersMapper,
-                        RoleRepository roleRepository,
-                        AIChatService aiChatService,
-                        InstrumentRepository instrumentRepository,
-                        TeacherRepository teacherRepository,
-                        AuthService authService, TeacherMapper teacherMapper, JwtUtils jwtUtils, InteractionService interactionService) {
+    public UsersService(UsersRepository usersRepository, UsersMapper usersMapper, RoleRepository roleRepository, AIChatService aiChatService, InstrumentRepository instrumentRepository, TeacherRepository teacherRepository, AuthService authService, TeacherMapper teacherMapper, JwtUtils jwtUtils, InteractionService interactionService, UsersProfileCompleteMapper usersProfileCompleteMapper, LikeRepository likeRepository, FavoriteRepository favoriteRepository) {
         this.usersRepository = usersRepository;
         this.usersMapper = usersMapper;
         this.roleRepository = roleRepository;
@@ -62,6 +58,9 @@ public class UsersService {
         this.teacherMapper = teacherMapper;
         this.jwtUtils = jwtUtils;
         this.interactionService = interactionService;
+        this.usersProfileCompleteMapper = usersProfileCompleteMapper;
+        this.likeRepository = likeRepository;
+        this.favoriteRepository = favoriteRepository;
     }
 
     public void setActive(Long userId, boolean active) {
@@ -414,7 +413,12 @@ public class UsersService {
 
     public UsersProfileCompleteDTO mapToProfileCompleteDTO(Users profileUser) {
         Users currentUser = authService.getCurrentUser();
-        UsersProfileCompleteDTO dto = usersMapper.usersToUsersProfileCompleteDTO(profileUser);
+        UsersProfileCompleteDTO dto = usersProfileCompleteMapper.toDto(
+                profileUser,
+                currentUser.getId(),
+                likeRepository,
+                favoriteRepository
+        );
 
         dto.setOwnProfile(isOwnProfile(currentUser, profileUser));
         dto.setImageProfilePath(FileUtils.imageToBase64(profileUser.getImageProfilePath()));
