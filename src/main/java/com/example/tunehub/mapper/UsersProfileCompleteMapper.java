@@ -1,6 +1,6 @@
 package com.example.tunehub.mapper;
 
-import com.example.tunehub.dto.UsersProfileCompleteDTO;
+import com.example.tunehub.dto.user.UsersProfileCompleteDTO;
 import com.example.tunehub.model.Users;
 import com.example.tunehub.repository.FavoriteRepository;
 import com.example.tunehub.repository.LikeRepository;

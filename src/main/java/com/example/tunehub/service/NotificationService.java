@@ -1,9 +1,9 @@
 //package com.example.tunehub.service;
 //
-//import com.example.tunehub.dto.NotificationFollowDTO;
-//import com.example.tunehub.dto.NotificationLikesAndFavoritesDTO;
-//import com.example.tunehub.dto.NotificationResponseDTO;
-//import com.example.tunehub.dto.NotificationSimpleDTO;
+//import com.example.tunehub.dto.notification.NotificationFollowDTO;
+//import com.example.tunehub.dto.notification.NotificationLikesAndFavoritesDTO;
+//import com.example.tunehub.dto.notification.NotificationResponseDTO;
+//import com.example.tunehub.dto.notification.NotificationSimpleDTO;
 //import com.example.tunehub.model.*;
 //
 //import jakarta.persistence.EntityManager;

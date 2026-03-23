@@ -1,6 +1,6 @@
 package com.example.tunehub.mapper;
 
-import com.example.tunehub.dto.InstrumentResponseDTO;
+import com.example.tunehub.dto.common.InstrumentResponseDTO;
 import com.example.tunehub.model.Instrument;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;

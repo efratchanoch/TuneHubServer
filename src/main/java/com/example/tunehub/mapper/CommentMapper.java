@@ -1,7 +1,7 @@
 package com.example.tunehub.mapper;
 
-import com.example.tunehub.dto.CommentDTO;
-import com.example.tunehub.dto.CommentUploadDTO;
+import com.example.tunehub.dto.comment.CommentDTO;
+import com.example.tunehub.dto.comment.CommentUploadDTO;
 import com.example.tunehub.model.Comment;
 import com.example.tunehub.repository.LikeRepository;
 import org.mapstruct.Context;

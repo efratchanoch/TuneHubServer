@@ -1,8 +1,8 @@
 package com.example.tunehub.service;
 
-import com.example.tunehub.dto.CommentDTO;
-import com.example.tunehub.dto.CommentPageDTO;
-import com.example.tunehub.dto.CommentUploadDTO;
+import com.example.tunehub.dto.comment.CommentDTO;
+import com.example.tunehub.dto.comment.CommentPageDTO;
+import com.example.tunehub.dto.comment.CommentUploadDTO;
 import com.example.tunehub.mapper.CommentMapper;
 import com.example.tunehub.model.Comment;
 import com.example.tunehub.model.Post;

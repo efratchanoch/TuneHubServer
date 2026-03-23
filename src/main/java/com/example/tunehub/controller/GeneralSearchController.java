@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.example.tunehub.dto.GlobalSearchResponseDTO;
+import com.example.tunehub.dto.common.GlobalSearchResponseDTO;
 import com.example.tunehub.service.GeneralSearchService;
 import com.example.tunehub.service.AuthService;
 

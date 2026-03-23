@@ -1,7 +1,7 @@
 package com.example.tunehub.controller;
 
-import com.example.tunehub.dto.PostResponseDTO;
-import com.example.tunehub.dto.PostUploadDTO;
+import com.example.tunehub.dto.post.PostResponseDTO;
+import com.example.tunehub.dto.post.PostUploadDTO;
 import com.example.tunehub.mapper.PostMapper;
 import com.example.tunehub.model.*;
 import com.example.tunehub.repository.CommentRepository;

@@ -1,7 +1,7 @@
 package com.example.tunehub.controller;
 
-import com.example.tunehub.dto.FavoriteItemDTO;
-import com.example.tunehub.dto.NotificationSimpleDTO;
+import com.example.tunehub.dto.common.FavoriteItemDTO;
+import com.example.tunehub.dto.notification.NotificationSimpleDTO;
 import com.example.tunehub.model.EFollowStatus;
 import com.example.tunehub.model.ETargetType;
 import com.example.tunehub.service.AuthService;

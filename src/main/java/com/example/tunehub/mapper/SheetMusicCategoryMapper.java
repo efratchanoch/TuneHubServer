@@ -1,6 +1,6 @@
 package com.example.tunehub.mapper;
 
-import com.example.tunehub.dto.SheetMusicCategoryResponseDTO;
+import com.example.tunehub.dto.sheetmusic.SheetMusicCategoryResponseDTO;
 import com.example.tunehub.model.SheetMusicCategory;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;

@@ -1,6 +1,6 @@
 package com.example.tunehub.service;
 
-import com.example.tunehub.dto.SheetMusicResponseAI;
+import com.example.tunehub.dto.sheetmusic.SheetMusicResponseAI;
 import com.example.tunehub.model.Instrument;
 import com.example.tunehub.repository.InstrumentRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;

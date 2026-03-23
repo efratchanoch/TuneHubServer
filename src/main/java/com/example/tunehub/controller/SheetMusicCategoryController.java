@@ -1,6 +1,6 @@
 package com.example.tunehub.controller;
 
-import com.example.tunehub.dto.SheetMusicCategoryResponseDTO;
+import com.example.tunehub.dto.sheetmusic.SheetMusicCategoryResponseDTO;
 import com.example.tunehub.model.SheetMusicCategory;
 import com.example.tunehub.mapper.SheetMusicCategoryMapper;
 import com.example.tunehub.repository.SheetMusicCategoryRepository;

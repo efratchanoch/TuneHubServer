@@ -1,7 +1,7 @@
 package com.example.tunehub.service;
 
-import com.example.tunehub.dto.SheetMusicResponseDTO;
-import com.example.tunehub.dto.SheetMusicUploadDTO;
+import com.example.tunehub.dto.sheetmusic.SheetMusicResponseDTO;
+import com.example.tunehub.dto.sheetmusic.SheetMusicUploadDTO;
 import com.example.tunehub.mapper.SheetMusicMapper;
 import com.example.tunehub.model.Instrument;
 import com.example.tunehub.model.SheetMusic;

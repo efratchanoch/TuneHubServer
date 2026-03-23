@@ -1,6 +1,6 @@
 package com.example.tunehub.mapper;
 
-import com.example.tunehub.dto.*;
+import com.example.tunehub.dto.user.TeacherListingDTO;
 import com.example.tunehub.model.Teacher;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

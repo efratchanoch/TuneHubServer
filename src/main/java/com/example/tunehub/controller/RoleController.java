@@ -1,6 +1,6 @@
 package com.example.tunehub.controller;
 
-import com.example.tunehub.dto.RoleDTO;
+import com.example.tunehub.dto.common.RoleDTO;
 import com.example.tunehub.mapper.RoleMapper;
 import com.example.tunehub.model.*;
 import com.example.tunehub.repository.NotificationRepository;

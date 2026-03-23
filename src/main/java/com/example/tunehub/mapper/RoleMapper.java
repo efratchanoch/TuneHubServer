@@ -1,6 +1,6 @@
 package com.example.tunehub.mapper;
 
-import com.example.tunehub.dto.RoleDTO;
+import com.example.tunehub.dto.common.RoleDTO;
 import com.example.tunehub.model.Role;
 import org.mapstruct.Mapper;
 

@@ -1,6 +1,7 @@
 package com.example.tunehub.controller;
 
-import com.example.tunehub.dto.*;
+import com.example.tunehub.dto.common.InstrumentResponseDTO;
+import com.example.tunehub.dto.sheetmusic.*;
 import com.example.tunehub.mapper.SheetMusicMapper;
 import com.example.tunehub.mapper.UsersMapper;
 import com.example.tunehub.model.*;

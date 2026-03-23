@@ -1,9 +1,9 @@
 package com.example.tunehub.service;
 
-import com.example.tunehub.dto.FavoriteItemDTO;
-import com.example.tunehub.dto.NotificationSimpleDTO;
-import com.example.tunehub.dto.PostResponseDTO;
-import com.example.tunehub.dto.SheetMusicResponseDTO;
+import com.example.tunehub.dto.common.FavoriteItemDTO;
+import com.example.tunehub.dto.notification.NotificationSimpleDTO;
+import com.example.tunehub.dto.post.PostResponseDTO;
+import com.example.tunehub.dto.sheetmusic.SheetMusicResponseDTO;
 import com.example.tunehub.mapper.PostMapper;
 import com.example.tunehub.mapper.SheetMusicMapper;
 import com.example.tunehub.model.*;

@@ -1,6 +1,7 @@
 package com.example.tunehub.controller;
 
-import com.example.tunehub.dto.*;
+import com.example.tunehub.dto.common.ChatRequest;
+import com.example.tunehub.dto.user.*;
 import com.example.tunehub.model.*;
 import com.example.tunehub.security.jwt.JwtUtils;
 import com.example.tunehub.service.AuthService;

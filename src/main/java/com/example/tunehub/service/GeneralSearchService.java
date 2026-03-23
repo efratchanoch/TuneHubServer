@@ -1,6 +1,6 @@
 package com.example.tunehub.service;
 
-import com.example.tunehub.dto.GlobalSearchResponseDTO;
+import com.example.tunehub.dto.common.GlobalSearchResponseDTO;
 import com.example.tunehub.mapper.PostMapper;
 import com.example.tunehub.mapper.SheetMusicMapper;
 import com.example.tunehub.mapper.UsersMapper;

@@ -1,6 +1,7 @@
 package com.example.tunehub.service;
 
-import com.example.tunehub.dto.*;
+import com.example.tunehub.dto.common.ChatRequest;
+import com.example.tunehub.dto.user.*;
 import com.example.tunehub.mapper.TeacherMapper;
 import com.example.tunehub.mapper.UsersMapper;
 import com.example.tunehub.mapper.UsersProfileCompleteMapper;

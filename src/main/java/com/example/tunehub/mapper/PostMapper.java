@@ -1,6 +1,8 @@
 package com.example.tunehub.mapper;
 
-import com.example.tunehub.dto.*;
+import com.example.tunehub.dto.post.PostResponseDTO;
+import com.example.tunehub.dto.post.PostSearchDTO;
+import com.example.tunehub.dto.post.PostUploadDTO;
 import com.example.tunehub.model.Post;
 import com.example.tunehub.repository.FavoriteRepository;
 import com.example.tunehub.repository.LikeRepository;
