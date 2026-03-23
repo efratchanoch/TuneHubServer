@@ -4,8 +4,8 @@ import com.example.tunehub.dto.*;
 import com.example.tunehub.model.*;
 import com.example.tunehub.security.jwt.JwtUtils;
 import com.example.tunehub.service.AuthService;
-import com.example.tunehub.service.UsersMapper;
-import com.example.tunehub.service.UsersRepository;
+import com.example.tunehub.mapper.UsersMapper;
+import com.example.tunehub.repository.UsersRepository;
 import com.example.tunehub.service.UsersService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -139,21 +138,6 @@ public class UsersController {
         return ResponseEntity.ok().build();
     }
 
-//    @PutMapping("/updateUser/{id}")
-//    public ResponseEntity<UsersProfileFullDTO> updateUser(
-//            @PathVariable Long id,
-//            @RequestParam String name,
-//            @RequestParam String email,
-//            @RequestParam(required = false) String city,
-//            @RequestParam(required = false) String country,
-//            @RequestParam(required = false) String description,
-//            @RequestParam(required = false) Boolean isActive,
-//            @RequestParam(required = false) List<EUserType> userTypes,
-//            @RequestParam(required = false) String imageProfilePath,
-//            @RequestPart(value = "image", required = false) MultipartFile file) throws IOException {
-//        return usersService.updateUser(id, name, email, city, country, description, isActive, userTypes, imageProfilePath, file);
-//    }
-
     // POST
     @PostMapping("/signIn")
     public ResponseEntity<?> signIn(@RequestBody UsersLogInDTO u,
@@ -162,7 +146,7 @@ public class UsersController {
     }
 
     @PostMapping("/signUp")
-    public ResponseEntity<?> signUp(@RequestPart(value = "image", required = false) MultipartFile file,
+    public ResponseEntity<?> signUp(@RequestPart(value = "image", required = true) MultipartFile file,
                                     @RequestPart("profile") UsersSignUpDTO user) throws IOException {
         return usersService.signUp(user, file);
     }

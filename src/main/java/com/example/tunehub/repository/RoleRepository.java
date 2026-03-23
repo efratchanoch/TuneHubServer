@@ -1,4 +1,4 @@
-package com.example.tunehub.service;
+package com.example.tunehub.repository;
 
 import com.example.tunehub.model.ERole;
 import com.example.tunehub.model.Role;

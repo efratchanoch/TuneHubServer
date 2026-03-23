@@ -99,15 +99,13 @@ public class WebSecurityConfig {
                                         .requestMatchers("/api/users/signUp").permitAll()
                                         .requestMatchers("/api/users/**").authenticated()
                                         .requestMatchers("/api/users/signOut").authenticated()
-                                        .requestMatchers("/api/teacher/**").permitAll() //
+                                        .requestMatchers("/api/teacher/**").permitAll() 
                                         .requestMatchers("/api/comment/**").authenticated()
                                         .requestMatchers("/api/interaction/**").authenticated()
                                         .requestMatchers("/api/notification/**").authenticated()
-                                        .requestMatchers("api/role/**").permitAll() //
+                                        .requestMatchers("api/role/**").permitAll()
                                         .requestMatchers("/api/users/chat").permitAll()
                                         .requestMatchers("/api/search/**").authenticated()
-                                   //     .requestMatchers("/api/post/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
-
                 );
 
         http.headers(headers -> headers

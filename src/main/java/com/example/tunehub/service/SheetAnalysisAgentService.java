@@ -2,6 +2,7 @@ package com.example.tunehub.service;
 
 import com.example.tunehub.dto.SheetMusicResponseAI;
 import com.example.tunehub.model.Instrument;
+import com.example.tunehub.repository.InstrumentRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.UserMessage;

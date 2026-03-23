@@ -1,7 +1,7 @@
 //package com.example.tunehub.controller;
 //
 //import com.example.tunehub.model.ENotificationCategory;
-//import com.example.tunehub.service.NotificationRepository;
+//import com.example.tunehub.repository.NotificationRepository;
 //import com.example.tunehub.service.NotificationService;
 //import com.example.tunehub.dto.NotificationResponseDTO;
 //import org.springframework.beans.factory.annotation.Autowired;

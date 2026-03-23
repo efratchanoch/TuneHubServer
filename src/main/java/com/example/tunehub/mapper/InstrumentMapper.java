@@ -1,4 +1,4 @@
-package com.example.tunehub.service;
+package com.example.tunehub.mapper;
 
 import com.example.tunehub.dto.InstrumentResponseDTO;
 import com.example.tunehub.model.Instrument;

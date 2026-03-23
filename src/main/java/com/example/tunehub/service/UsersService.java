@@ -1,7 +1,11 @@
 package com.example.tunehub.service;
 
 import com.example.tunehub.dto.*;
+import com.example.tunehub.mapper.TeacherMapper;
+import com.example.tunehub.mapper.UsersMapper;
+import com.example.tunehub.mapper.UsersProfileCompleteMapper;
 import com.example.tunehub.model.*;
+import com.example.tunehub.repository.*;
 import com.example.tunehub.security.CustomUserDetails;
 import com.example.tunehub.security.jwt.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +22,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

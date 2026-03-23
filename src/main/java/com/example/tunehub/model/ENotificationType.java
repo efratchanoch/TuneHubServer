@@ -11,15 +11,14 @@ public enum ENotificationType {
 
     FOLLOWEE_NEW_POST(ENotificationCategory.FOLLOW_UPDATES),
     FOLLOWEE_NEW_MUSIC(ENotificationCategory.FOLLOW_UPDATES),
-    FOLLOWEE_NEW_PROFILE_PICTURE(ENotificationCategory.FOLLOW_UPDATES),
     FOLLOWEE_NEW_VIDEO(ENotificationCategory.FOLLOW_UPDATES),
     FOLLOWEE_PROFILE_UPDATED(ENotificationCategory.FOLLOW_UPDATES),
 
     FOLLOW_REQUEST_ACCEPTED(ENotificationCategory.APPROVED_FOLLOWS),
     FOLLOW_REQUEST_DECLINED(ENotificationCategory.APPROVED_FOLLOWS),
 
-    FOLLOW_REQUEST_RECEIVED(ENotificationCategory.FOLLOW_REQUESTS), // זו בקשת עוקב שמגיעה אליך
-    FOLLOWER_REMOVED(ENotificationCategory.FOLLOW_UPDATES), // הסרת עוקב נכנסת כעדכון עוקב
+    FOLLOW_REQUEST_RECEIVED(ENotificationCategory.FOLLOW_REQUESTS),
+    FOLLOWER_REMOVED(ENotificationCategory.FOLLOW_UPDATES),
 
     ADMIN_WARNING_POST(ENotificationCategory.ADMIN),
     ADMIN_WARNING_COMMENT(ENotificationCategory.ADMIN),

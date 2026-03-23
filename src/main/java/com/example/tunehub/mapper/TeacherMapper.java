@@ -1,13 +1,9 @@
-package com.example.tunehub.service;
+package com.example.tunehub.mapper;
 
 import com.example.tunehub.dto.*;
 import com.example.tunehub.model.Teacher;
-import com.example.tunehub.model.Users;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
-import java.io.IOException;
-import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {UsersMapper.class, InstrumentMapper.class})
 public interface TeacherMapper {

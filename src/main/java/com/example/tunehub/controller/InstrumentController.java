@@ -2,8 +2,8 @@ package com.example.tunehub.controller;
 
 import com.example.tunehub.dto.InstrumentResponseDTO;
 import com.example.tunehub.model.Instrument;
-import com.example.tunehub.service.InstrumentMapper;
-import com.example.tunehub.service.InstrumentRepository;
+import com.example.tunehub.mapper.InstrumentMapper;
+import com.example.tunehub.repository.InstrumentRepository;
 import com.example.tunehub.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,12 +1,11 @@
-package com.example.tunehub.service;
+package com.example.tunehub.mapper;
 
 import com.example.tunehub.dto.CommentDTO;
 import com.example.tunehub.dto.CommentUploadDTO;
 import com.example.tunehub.model.Comment;
-import com.example.tunehub.model.Post;
+import com.example.tunehub.repository.LikeRepository;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
-import com.example.tunehub.service.UsersMapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;

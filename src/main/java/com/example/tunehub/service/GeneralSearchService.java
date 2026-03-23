@@ -1,7 +1,13 @@
 package com.example.tunehub.service;
 
 import com.example.tunehub.dto.GlobalSearchResponseDTO;
+import com.example.tunehub.mapper.PostMapper;
+import com.example.tunehub.mapper.SheetMusicMapper;
+import com.example.tunehub.mapper.UsersMapper;
 import com.example.tunehub.model.*;
+import com.example.tunehub.repository.PostRepository;
+import com.example.tunehub.repository.SheetMusicRepository;
+import com.example.tunehub.repository.UsersRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 

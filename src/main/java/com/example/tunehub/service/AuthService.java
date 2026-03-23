@@ -1,6 +1,7 @@
 package com.example.tunehub.service;
 
 import com.example.tunehub.model.Users;
+import com.example.tunehub.repository.UsersRepository;
 import com.example.tunehub.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

@@ -2,8 +2,8 @@ package com.example.tunehub.controller;
 
 import com.example.tunehub.dto.SheetMusicCategoryResponseDTO;
 import com.example.tunehub.model.SheetMusicCategory;
-import com.example.tunehub.service.SheetMusicCategoryMapper;
-import com.example.tunehub.service.SheetMusicCategoryRepository;
+import com.example.tunehub.mapper.SheetMusicCategoryMapper;
+import com.example.tunehub.repository.SheetMusicCategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

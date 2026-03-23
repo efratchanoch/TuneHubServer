@@ -2,7 +2,7 @@ package com.example.tunehub.security;
 
 import com.example.tunehub.model.Role;
 import com.example.tunehub.model.Users;
-import com.example.tunehub.service.UsersRepository;
+import com.example.tunehub.repository.UsersRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;

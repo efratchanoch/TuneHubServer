@@ -1,4 +1,4 @@
-package com.example.tunehub.service;
+package com.example.tunehub.repository;
 
 import com.example.tunehub.model.EDifficultyLevel;
 import com.example.tunehub.model.EScale;

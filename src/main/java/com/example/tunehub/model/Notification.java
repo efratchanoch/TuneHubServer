@@ -233,10 +233,7 @@ public class Notification {
                 this.title = "New Activity from Someone You Follow";
                 this.message = actorName + " uploaded new music.";
             }
-            case FOLLOWEE_NEW_PROFILE_PICTURE -> {
-                this.title = "New Activity from Someone You Follow";
-                this.message = actorName + " updated their profile picture.";
-            }
+
             case FOLLOWEE_NEW_VIDEO -> {
                 this.title = "New Activity from Someone You Follow";
                 this.message = actorName + " uploaded a new video.";
@@ -314,7 +311,7 @@ public class Notification {
                     -> ENotificationCategory.COMMENTS;
 
             // Follow Updates
-            case FOLLOWEE_NEW_POST, FOLLOWEE_NEW_MUSIC, FOLLOWEE_NEW_PROFILE_PICTURE,
+            case FOLLOWEE_NEW_POST, FOLLOWEE_NEW_MUSIC,
                  FOLLOWEE_NEW_VIDEO, FOLLOWEE_PROFILE_UPDATED
                     -> ENotificationCategory.FOLLOW_UPDATES;
 

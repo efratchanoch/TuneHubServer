@@ -1,9 +1,11 @@
-package com.example.tunehub.service;
+package com.example.tunehub.mapper;
 
 import com.example.tunehub.dto.SheetMusicResponseDTO;
 import com.example.tunehub.dto.SheetMusicSearchDTO;
 import com.example.tunehub.dto.SheetMusicUploadDTO;
 import com.example.tunehub.model.SheetMusic;
+import com.example.tunehub.repository.FavoriteRepository;
+import com.example.tunehub.repository.LikeRepository;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 

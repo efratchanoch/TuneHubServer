@@ -1,14 +1,13 @@
-package com.example.tunehub.service;
+package com.example.tunehub.mapper;
 
 import com.example.tunehub.dto.*;
 import com.example.tunehub.model.Post;
-import com.example.tunehub.model.SheetMusic;
-import com.example.tunehub.model.Users;
+import com.example.tunehub.repository.FavoriteRepository;
+import com.example.tunehub.repository.LikeRepository;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.io.IOException;
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = UsersMapper.class)

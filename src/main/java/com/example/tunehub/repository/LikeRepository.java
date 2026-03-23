@@ -1,8 +1,7 @@
-package com.example.tunehub.service;
+package com.example.tunehub.repository;
 
 import com.example.tunehub.model.ETargetType;
 import com.example.tunehub.model.Like;
-import org.hibernate.tool.schema.TargetType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

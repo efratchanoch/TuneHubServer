@@ -2,7 +2,12 @@ package com.example.tunehub.controller;
 
 import com.example.tunehub.dto.PostResponseDTO;
 import com.example.tunehub.dto.PostUploadDTO;
+import com.example.tunehub.mapper.PostMapper;
 import com.example.tunehub.model.*;
+import com.example.tunehub.repository.CommentRepository;
+import com.example.tunehub.repository.FavoriteRepository;
+import com.example.tunehub.repository.LikeRepository;
+import com.example.tunehub.repository.PostRepository;
 import com.example.tunehub.service.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;

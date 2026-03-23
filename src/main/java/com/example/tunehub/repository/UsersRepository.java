@@ -1,11 +1,7 @@
-package com.example.tunehub.service;
+package com.example.tunehub.repository;
 
-import com.example.tunehub.dto.UsersMusiciansDTO;
-import com.example.tunehub.dto.UsersProfileFullDTO;
 import com.example.tunehub.model.EUserType;
-import com.example.tunehub.model.SheetMusic;
 import com.example.tunehub.model.Users;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 public interface UsersRepository extends JpaRepository<Users, Long> {

@@ -1,8 +1,6 @@
-package com.example.tunehub.service;
+package com.example.tunehub.repository;
 
 import com.example.tunehub.model.Post;
-import com.example.tunehub.model.SheetMusic;
-import com.example.tunehub.model.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
