@@ -1,6 +1,8 @@
 package com.example.tunehub.service;
 
+import ch.qos.logback.classic.Logger;
 import com.example.tunehub.dto.common.FavoriteItemDTO;
+import com.example.tunehub.dto.notification.NotificationEvent;
 import com.example.tunehub.dto.notification.NotificationSimpleDTO;
 import com.example.tunehub.dto.post.PostResponseDTO;
 import com.example.tunehub.dto.sheetmusic.SheetMusicResponseDTO;
@@ -9,7 +11,9 @@ import com.example.tunehub.mapper.SheetMusicMapper;
 import com.example.tunehub.model.*;
 import com.example.tunehub.repository.*;
 import jakarta.transaction.Transactional;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,17 +38,16 @@ public class InteractionService {
     //  private final NotificationService notificationService;
     private final SheetMusicMapper sheetMusicMapper;
     private final PostMapper postMapper;
+    private RabbitTemplate rabbitTemplate;
+
+    @Value("${tunehub.rabbitmq.routingkey}")
+    private String routingKey;
+
+    @Value("${tunehub.rabbitmq.exchange}")
+    private String exchangeName;
 
     @Autowired
-    public InteractionService(PostRepository postRepository, SheetMusicRepository sheetMusicRepository,
-                              UsersRepository usersRepository, LikeRepository likeRepository,
-                              NotificationRepository notificationRepository, FavoriteRepository favoriteRepository,
-                              FollowRepository followRepository, AuthService authService,
-                              CommentRepository commentRepository,
-                              //NotificationService notificationService,
-                              SheetMusicMapper sheetMusicMapper,
-                              PostMapper postMapper) {
-
+    public InteractionService(PostRepository postRepository, SheetMusicRepository sheetMusicRepository, UsersRepository usersRepository, LikeRepository likeRepository, NotificationRepository notificationRepository, FavoriteRepository favoriteRepository, FollowRepository followRepository, AuthService authService, CommentRepository commentRepository, SheetMusicMapper sheetMusicMapper, PostMapper postMapper, RabbitTemplate rabbitTemplate) {
         this.postRepository = postRepository;
         this.sheetMusicRepository = sheetMusicRepository;
         this.usersRepository = usersRepository;
@@ -54,35 +57,69 @@ public class InteractionService {
         this.followRepository = followRepository;
         this.authService = authService;
         this.commentRepository = commentRepository;
-        //    this.notificationService = notificationService;
         this.sheetMusicMapper = sheetMusicMapper;
         this.postMapper = postMapper;
-
+        this.rabbitTemplate = rabbitTemplate;
     }
 
 
-    private Users getContentOwner(ETargetType targetType, Long targetId) {
-        switch (targetType) {
-            case POST:
-                return postRepository.findById(targetId)
-                        .map(Post::getUser)
-                        .orElse(null);
+    /**
+     * Generic dispatcher for all notification events across the TuneHub platform.
+     * Ensures consistent communication with the Node.js Notification Microservice.
+     */
+    private void sendNotification(Users recipient, Long senderId, String title,
+                                  String message, String type, Long entityId, String action) {
 
-            case SHEET_MUSIC:
-                return sheetMusicRepository.findById(targetId)
-                        .map(SheetMusic::getUser)
-                        .orElse(null);
-
-            case USER:
-                return usersRepository.findById(targetId).orElse(null);
-
-            case COMMENT:
-                return commentRepository.findById(targetId)
-                        .map(Comment::getUser)
-                        .orElse(null);
-            default:
-                return null;
+        // Safety check: Don't notify the user about their own actions
+        if (recipient == null || recipient.getId().equals(senderId)) {
+            return;
         }
+
+        // Creating the DTO instance based on your specific NotificationEvent class
+        NotificationEvent event = new NotificationEvent();
+        event.setRecipientId(recipient.getId());
+        event.setSenderId(senderId);
+        event.setTitle(title);
+        event.setMessage(message);
+        event.setType(type);
+        event.setEntityId(entityId);
+        event.setAction(action);
+
+        // Dispatching to RabbitMQ
+        try {
+            rabbitTemplate.convertAndSend(exchangeName, routingKey, event);
+        } catch (Exception e) {
+            // Fallback or log if the queue is unreachable
+            System.err.println("Failed to dispatch notification to RabbitMQ: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Resolves the owner of the target content based on the target type and ID.
+     *
+     * @param targetType The category of the content (POST, COMMENT, etc.)
+     * @param targetId   The unique identifier of the content
+     * @return The Users entity representing the owner, or null if not found
+     */
+    private Users getContentOwner(ETargetType targetType, Long targetId) {
+        return switch (targetType) {
+            case POST -> postRepository.findById(targetId)
+                    .map(Post::getUser)
+                    .orElse(null);
+
+            case SHEET_MUSIC -> sheetMusicRepository.findById(targetId)
+                    .map(SheetMusic::getUser)
+                    .orElse(null);
+
+            case COMMENT -> commentRepository.findById(targetId)
+                    .map(Comment::getUser)
+                    .orElse(null);
+
+            case USER -> usersRepository.findById(targetId)
+                    .orElse(null);
+
+            default -> throw new IllegalArgumentException("Unsupported target type: " + targetType);
+        };
     }
 
     private void updateContentCount(ETargetType targetType, Long targetId, int newCount, boolean isLike) {
@@ -121,6 +158,14 @@ public class InteractionService {
         return newCount;
     }
 
+
+    /**
+     * Adds a like to a target entity and notifies the owner.
+     *
+     * @param targetType The type of entity (e.g., POST, SHEET_MUSIC, COMMENT)
+     * @param targetId   The ID of the entity
+     * @return ResponseEntity confirming the operation
+     */
     public ResponseEntity<?> addLike(ETargetType targetType, Long targetId) {
         Long currentUserId = authService.getCurrentUserId();
 
@@ -129,10 +174,19 @@ public class InteractionService {
                 return new ResponseEntity<>(null, HttpStatus.OK);
             }
 
+            // Get content owner
+            Users owner = getContentOwner(targetType, targetId);
+            if (owner == null) {
+                return new ResponseEntity<>("Content owner not found", HttpStatus.NOT_FOUND);
+            }
+
+            // Save the like
             Like newLike = new Like(currentUserId, targetType, targetId);
             likeRepository.save(newLike);
-
             int newCount = updateLikesAndNotify(targetType, targetId);
+
+            sendNotification(owner, currentUserId, "New Interaction", "Someone liked your post",
+                    "LIKE_" + targetType, targetId, "increment");
 
             return new ResponseEntity<>(newCount, HttpStatus.OK);
 

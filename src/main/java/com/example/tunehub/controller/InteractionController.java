@@ -6,6 +6,7 @@ import com.example.tunehub.model.EFollowStatus;
 import com.example.tunehub.model.ETargetType;
 import com.example.tunehub.service.AuthService;
 import com.example.tunehub.service.InteractionService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
