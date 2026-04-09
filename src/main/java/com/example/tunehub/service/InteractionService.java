@@ -267,95 +267,71 @@ public class InteractionService {
     @Transactional
     public ResponseEntity<EFollowStatus> toggleFollowRequest(Long targetUserId) {
         Users follower = authService.getCurrentUser();
-
         if (follower.getId().equals(targetUserId))
             return new ResponseEntity<>(EFollowStatus.NONE, HttpStatus.BAD_REQUEST);
 
         Follow existingFollow = followRepository.findByFollowerIdAndFollowingIdForUpdate(
                 follower.getId(), targetUserId);
 
-        Users contentOwner = usersRepository.findUsersById(targetUserId);
-
-        if (contentOwner == null) {
-            return new ResponseEntity<>(EFollowStatus.NONE, HttpStatus.BAD_REQUEST);
-        }
+        Users targetUser = usersRepository.findUsersById(targetUserId);
 
         if (existingFollow != null) {
             followRepository.delete(existingFollow);
-            followRepository.flush();
-            //  notificationService.handleUnfollowNotification(follower, contentOwner);
+            return new ResponseEntity<>(EFollowStatus.NONE, HttpStatus.OK);
         }
 
         Follow newFollow = new Follow(follower.getId(), targetUserId, EFollowStatus.PENDING);
         followRepository.save(newFollow);
-        followRepository.flush();
 
-        //       notificationService.handleFollowRequestNotification(follower, contentOwner);
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("title", "New follow request");
+        metadata.put("content", follower.getName() + " want to follow you");
+
+        sendNotification(targetUser, follower.getId(), metadata.get("title"), ETargetType.USER,
+                metadata, "FOLLOW_REQUEST_RECEIVED", follower.getId(), 0);
 
         return new ResponseEntity<>(EFollowStatus.PENDING, HttpStatus.ACCEPTED);
     }
 
 
-    public ResponseEntity<EFollowStatus> getFollowStatus(Long targetUserId) {
-        Users currentUser = authService.getCurrentUser();
-        if (currentUser == null)
-            return new ResponseEntity<>(EFollowStatus.NONE, HttpStatus.UNAUTHORIZED);
-
-        if (currentUser.getId() == targetUserId)
+    public ResponseEntity<EFollowStatus> getFollowStatus(Long followerUserId, Long followingUserId) {
+        if (followerUserId == followingUserId)
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 
-        Follow follow = followRepository.findByFollowerIdAndFollowingId(
-                currentUser.getId(), targetUserId);
+        Optional<Follow> follow = followRepository.findByFollowerIdAndFollowingId(
+                followerUserId, followingUserId);
 
         return new ResponseEntity<>(
-                follow == null ? EFollowStatus.NONE : follow.getStatus(),
+                follow == null ? EFollowStatus.NONE : follow.get().getStatus(),
                 HttpStatus.OK
         );
     }
 
     public ResponseEntity<?> approveFollow(Long followerId) {
-        return approveOrRejectFollow(followerId, ENotificationType.FOLLOW_REQUEST_ACCEPTED);
+        return approveOrRejectFollow(followerId, EFollowStatus.APPROVED, ENotificationType.FOLLOW_REQUEST_ACCEPTED);
     }
 
-    public ResponseEntity<?> RejectFollow(Long followerId) {
-        return approveOrRejectFollow(followerId, ENotificationType.FOLLOW_REQUEST_RECEIVED);
+    public ResponseEntity<?> rejectFollow(Long followerId) {
+        return approveOrRejectFollow(followerId, EFollowStatus.DENIED, ENotificationType.FOLLOW_REQUEST_RECEIVED);
     }
 
-    private ResponseEntity<?> approveOrRejectFollow(Long followerId, ENotificationType notify) {
-        Users followingUser = authService.getCurrentUser();
+    private ResponseEntity<?> approveOrRejectFollow(Long followerId, EFollowStatus newStatus, ENotificationType notify) {
+        Long currentUserId = authService.getCurrentUserId();
 
         try {
-            Optional<Follow> existingFollow = followRepository
-                    .findByFollowerIdAndFollowingIdAndStatus(
-                            followerId, followingUser.getId(), EFollowStatus.PENDING);
+            Optional<Follow> followOpt = followRepository.findByFollowerIdAndFollowingId(followerId, currentUserId);
 
-            if (existingFollow.isEmpty()) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body("No pending follow request found.");
+            if (followOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Request not found");
             }
 
-            Follow follow = existingFollow.get();
-            follow.setStatus(EFollowStatus.APPROVED);
+            Follow follow = followOpt.get();
+            follow.setStatus(newStatus);
             followRepository.save(follow);
 
-            Users follower = usersRepository.findById(followerId).orElse(null);
-            if (follower == null) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body("Follower user not found.");
-            }
-
-            //notificationService.handleFollowRequestDecisions(follower, followingUser, notify);
-
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body("Follow request processed successfully.");
-
+            return ResponseEntity.ok("Status updated to " + newStatus);
         } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred.");
+            return ResponseEntity.status(500).body("Update failed");
         }
     }
 

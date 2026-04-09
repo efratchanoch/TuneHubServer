@@ -49,6 +49,7 @@ public class InteractionController {
         }
     }
 
+    // Follow
     @PostMapping("/follow/toggle/{targetUserId}")
     public ResponseEntity<EFollowStatus> toggleFollowRequest(@PathVariable Long targetUserId) {
         try {
@@ -64,8 +65,20 @@ public class InteractionController {
     @GetMapping("/follow/status/{targetUserId}")
     public ResponseEntity<EFollowStatus> getFollowStatus(@PathVariable Long targetUserId) {
         try {
-            authService.getCurrentUserId();
-            return interactionService.getFollowStatus(targetUserId);
+            Long currentUserId = authService.getCurrentUserId();
+            return interactionService.getFollowStatus(currentUserId, targetUserId);
+        } catch (IllegalStateException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/following/status/{targetUserId}")
+    public ResponseEntity<EFollowStatus> getFollowingStatus(@PathVariable Long targetUserId) {
+        try {
+            Long currentUserId = authService.getCurrentUserId();
+            return interactionService.getFollowStatus(targetUserId, currentUserId);
         } catch (IllegalStateException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
@@ -85,9 +98,19 @@ public class InteractionController {
         }
     }
 
+    @PostMapping("/follow/reject/{followerId}")
+    public ResponseEntity<?> rejectFollow(@PathVariable Long followerId) {
+        try {
+            authService.getCurrentUserId();
+            return interactionService.rejectFollow(followerId);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/favorite/add/{targetType}/{targetId}")
     public ResponseEntity<?> addFavorite(@PathVariable ETargetType targetType,
-                                                             @PathVariable Long targetId) {
+                                         @PathVariable Long targetId) {
         try {
             authService.getCurrentUserId();
             return interactionService.addFavorite(targetType, targetId);
@@ -100,7 +123,7 @@ public class InteractionController {
 
     @DeleteMapping("/favorite/remove/{targetType}/{targetId}")
     public ResponseEntity<?> removeFavorite(@PathVariable ETargetType targetType,
-                                                                @PathVariable Long targetId) {
+                                            @PathVariable Long targetId) {
         try {
             authService.getCurrentUserId();
             return interactionService.removeFavorite(targetType, targetId);
