@@ -1,6 +1,10 @@
 package com.example.tunehub.dto.notification;
 
 import java.io.Serializable;
+
+import com.example.tunehub.model.ETargetType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,16 +29,17 @@ public class NotificationEvent implements Serializable {
     /** Short title for the notification (e.g., "New Like") */
     private String title;
 
-    /** Detailed message describing the event */
-    private String message;
+    /** Detailed content describing the event */
+    private String content;
 
-    /** * The category type (MUST match Angular's ENotificationCategory)
-     * Examples: "LIKES_FAVORITES", "FOLLOW_UPDATES", "COMMENTS"
-     */
+    /** * The category type */
     private String type;
+
+    @Enumerated(EnumType.STRING)
+    private ETargetType targetType;
 
     /** The ID of the related entity (Song ID, Post ID, etc.) */
     private Long entityId;
 
-    private String action;
+    private int count;
 }

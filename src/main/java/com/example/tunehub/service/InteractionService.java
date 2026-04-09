@@ -1,6 +1,5 @@
 package com.example.tunehub.service;
 
-import ch.qos.logback.classic.Logger;
 import com.example.tunehub.dto.common.FavoriteItemDTO;
 import com.example.tunehub.dto.notification.NotificationEvent;
 import com.example.tunehub.dto.notification.NotificationSimpleDTO;
@@ -18,9 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,12 +27,10 @@ public class InteractionService {
     private final SheetMusicRepository sheetMusicRepository;
     private final UsersRepository usersRepository;
     private final LikeRepository likeRepository;
-    private final NotificationRepository notificationRepository;
     private final FavoriteRepository favoriteRepository;
     private final FollowRepository followRepository;
     private final AuthService authService;
     private final CommentRepository commentRepository;
-    //  private final NotificationService notificationService;
     private final SheetMusicMapper sheetMusicMapper;
     private final PostMapper postMapper;
     private RabbitTemplate rabbitTemplate;
@@ -47,12 +42,11 @@ public class InteractionService {
     private String exchangeName;
 
     @Autowired
-    public InteractionService(PostRepository postRepository, SheetMusicRepository sheetMusicRepository, UsersRepository usersRepository, LikeRepository likeRepository, NotificationRepository notificationRepository, FavoriteRepository favoriteRepository, FollowRepository followRepository, AuthService authService, CommentRepository commentRepository, SheetMusicMapper sheetMusicMapper, PostMapper postMapper, RabbitTemplate rabbitTemplate) {
+    public InteractionService(PostRepository postRepository, SheetMusicRepository sheetMusicRepository, UsersRepository usersRepository, LikeRepository likeRepository, FavoriteRepository favoriteRepository, FollowRepository followRepository, AuthService authService, CommentRepository commentRepository, SheetMusicMapper sheetMusicMapper, PostMapper postMapper, RabbitTemplate rabbitTemplate) {
         this.postRepository = postRepository;
         this.sheetMusicRepository = sheetMusicRepository;
         this.usersRepository = usersRepository;
         this.likeRepository = likeRepository;
-        this.notificationRepository = notificationRepository;
         this.favoriteRepository = favoriteRepository;
         this.followRepository = followRepository;
         this.authService = authService;
@@ -62,28 +56,71 @@ public class InteractionService {
         this.rabbitTemplate = rabbitTemplate;
     }
 
+    /**
+     * Generates professional notification headers and content.
+     * * @param targetType The entity being interacted with (POST, SHEET_MUSIC, COMMENT)
+     *
+     * @param actionType The type of interaction (LIKE, FAVORITE)
+     * @param count      The current total count from the respective repository
+     * @return A Map containing "title" and "content"
+     */
+    public Map<String, String> getNotificationMetadata(String targetType, String actionType, int count) {
+        Map<String, String> metadata = new HashMap<>();
+        String title = "";
+        String content = "";
+
+        String peopleStr = (count == 1) ? "person" : "people";
+        String actionWord = "LIKE".equalsIgnoreCase(actionType) ? "liked" : "bookmarked";
+
+        switch (targetType.toUpperCase()) {
+            case "POST":
+                title = "Post Interaction";
+                content = String.format("%d %s %s your post", count, peopleStr, actionWord);
+                break;
+
+            case "SHEET_MUSIC":
+                title = "Sheet Music Update";
+                content = String.format("%d %s %s your sheet music", count, peopleStr, actionWord);
+                break;
+
+            case "COMMENT":
+                title = "Comment Feedback";
+                content = String.format("%d %s liked your comment", count, peopleStr);
+                break;
+
+            default:
+                title = "New Notification";
+                content = "You have a new interaction on your content";
+                break;
+        }
+
+        metadata.put("title", title);
+        metadata.put("content", content);
+        return metadata;
+    }
 
     /**
      * Generic dispatcher for all notification events across the TuneHub platform.
      * Ensures consistent communication with the Node.js Notification Microservice.
      */
-    private void sendNotification(Users recipient, Long senderId, String title,
-                                  String message, String type, Long entityId, String action) {
+    private void sendNotification(Users recipient, Long senderId, String title, ETargetType targetType,
+                                  Map<String, String> metadata, String type, Long entityId, int newCount) {
 
         // Safety check: Don't notify the user about their own actions
-        if (recipient == null || recipient.getId().equals(senderId)) {
+        if (recipient == null) {
             return;
         }
 
-        // Creating the DTO instance based on your specific NotificationEvent class
+        // Creating the DTO instance based on specific NotificationEvent class
         NotificationEvent event = new NotificationEvent();
         event.setRecipientId(recipient.getId());
         event.setSenderId(senderId);
-        event.setTitle(title);
-        event.setMessage(message);
+        event.setTargetType(targetType);
+        event.setTitle(metadata.get("title"));
+        event.setContent(metadata.get("content"));
         event.setType(type);
         event.setEntityId(entityId);
-        event.setAction(action);
+        event.setCount(newCount);
 
         // Dispatching to RabbitMQ
         try {
@@ -185,8 +222,9 @@ public class InteractionService {
             likeRepository.save(newLike);
             int newCount = updateLikesAndNotify(targetType, targetId);
 
-            sendNotification(owner, currentUserId, "New Interaction", "Someone liked your post",
-                    "LIKE_" + targetType, targetId, "increment");
+            sendNotification(owner, currentUserId, "New Interaction", targetType,
+                    getNotificationMetadata(targetType.toString(), "LIKE", newCount),
+                    "LIKE_" + targetType, targetId, newCount);
 
             return new ResponseEntity<>(newCount, HttpStatus.OK);
 
@@ -206,6 +244,16 @@ public class InteractionService {
             existingLike.ifPresent(likeRepository::delete);
 
             int newCount = updateLikesAndNotify(targetType, targetId);
+
+            // Get content owner
+            Users owner = getContentOwner(targetType, targetId);
+            if (owner == null) {
+                return new ResponseEntity<>("Content owner not found", HttpStatus.NOT_FOUND);
+            }
+
+            sendNotification(owner, currentUserId, "New Interaction", targetType,
+                    getNotificationMetadata(targetType.toString(), "LIKE", newCount),
+                    "LIKE_" + targetType, targetId, newCount);
 
             return new ResponseEntity<>(newCount, HttpStatus.OK);
 
@@ -314,7 +362,7 @@ public class InteractionService {
 
     // Favorites
     @Transactional
-    public ResponseEntity<NotificationSimpleDTO> addFavorite(ETargetType targetType, Long targetId) {
+    public ResponseEntity<?> addFavorite(ETargetType targetType, Long targetId) {
         Long currentUserId = authService.getCurrentUserId();
 
         try {
@@ -323,30 +371,29 @@ public class InteractionService {
                 Favorite newFavorite = new Favorite(currentUserId, targetType, targetId);
                 favoriteRepository.save(newFavorite);
 
-//                Users contentOwner = getContentOwner(targetType, targetId);
-//                if (contentOwner != null) {
-//                    Users currentUserEntity = authService.getCurrentUser();
-//                    notificationRepository.save(new Notification(
-//                            ENotificationType.FAVORITE_MUSIC,
-//                            contentOwner,
-//                            currentUserEntity,
-//                            targetType,
-//                            targetId
-//                    ));
-//                }
+            }
+            // Get content owner
+            Users owner = getContentOwner(targetType, targetId);
+            if (owner == null) {
+                return new ResponseEntity<>("Content owner not found", HttpStatus.NOT_FOUND);
             }
 
             int newCount = favoriteRepository.countByTargetTypeAndTargetId(targetType, targetId);
-            updateContentCount(targetType, targetId, newCount, false);
-            return new ResponseEntity<>(new NotificationSimpleDTO(targetId, newCount, false), HttpStatus.OK);
 
+            updateContentCount(targetType, targetId, newCount, false);
+            sendNotification(owner, currentUserId, "New Interaction", targetType,
+                    getNotificationMetadata(targetType.toString(), "FAVORITE", newCount),
+                    "FAVORITE_" + targetType, targetId, newCount);
+
+
+            return new ResponseEntity<>(newCount, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @Transactional
-    public ResponseEntity<NotificationSimpleDTO> removeFavorite(ETargetType targetType, Long targetId) {
+    public ResponseEntity<?> removeFavorite(ETargetType targetType, Long targetId) {
         Long currentUserId = authService.getCurrentUserId();
 
         try {
@@ -355,9 +402,22 @@ public class InteractionService {
 
             existingFavorite.ifPresent(favoriteRepository::delete);
 
+            // Get content owner
+            Users owner = getContentOwner(targetType, targetId);
+            if (owner == null) {
+                return new ResponseEntity<>("Content owner not found", HttpStatus.NOT_FOUND);
+            }
+
             int newCount = favoriteRepository.countByTargetTypeAndTargetId(targetType, targetId);
             updateContentCount(targetType, targetId, newCount, false);
-            return new ResponseEntity<>(new NotificationSimpleDTO(targetId, newCount, false), HttpStatus.OK);
+
+            updateContentCount(targetType, targetId, newCount, false);
+            sendNotification(owner, currentUserId, "New Interaction", targetType,
+                    getNotificationMetadata(targetType.toString(), "FAVORITE", newCount),
+                    "FAVORITE_" + targetType, targetId, newCount);
+
+
+            return new ResponseEntity<>(newCount, HttpStatus.OK);
 
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -463,5 +523,4 @@ public class InteractionService {
     public long getTotalCommentsOnUserContent(Long userId) {
         return commentRepository.countCommentsOnUserPosts(userId);
     }
-
 }

@@ -1,12 +1,10 @@
 package com.example.tunehub.controller;
 
 import com.example.tunehub.dto.common.FavoriteItemDTO;
-import com.example.tunehub.dto.notification.NotificationSimpleDTO;
 import com.example.tunehub.model.EFollowStatus;
 import com.example.tunehub.model.ETargetType;
 import com.example.tunehub.service.AuthService;
 import com.example.tunehub.service.InteractionService;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -88,7 +86,7 @@ public class InteractionController {
     }
 
     @PostMapping("/favorite/add/{targetType}/{targetId}")
-    public ResponseEntity<NotificationSimpleDTO> addFavorite(@PathVariable ETargetType targetType,
+    public ResponseEntity<?> addFavorite(@PathVariable ETargetType targetType,
                                                              @PathVariable Long targetId) {
         try {
             authService.getCurrentUserId();
@@ -101,7 +99,7 @@ public class InteractionController {
     }
 
     @DeleteMapping("/favorite/remove/{targetType}/{targetId}")
-    public ResponseEntity<NotificationSimpleDTO> removeFavorite(@PathVariable ETargetType targetType,
+    public ResponseEntity<?> removeFavorite(@PathVariable ETargetType targetType,
                                                                 @PathVariable Long targetId) {
         try {
             authService.getCurrentUserId();
