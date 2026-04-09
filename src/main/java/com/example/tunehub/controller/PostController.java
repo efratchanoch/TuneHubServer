@@ -36,21 +36,18 @@ public class PostController {
     private final PostMapper postMapper;
     private final AuthService authService;
     private final CommentRepository commentRepository;
-   // private final NotificationService notificationService;
+    private final InteractionService interactionService;
 
     @Autowired
-    public PostController(LikeRepository likeRepository, FavoriteRepository favoriteRepository, PostRepository postRepository, PostMapper postMapper, AuthService authService,
-                          //NotificationService notificationService,
-                          CommentRepository commentRepository) {
+    public PostController(LikeRepository likeRepository, FavoriteRepository favoriteRepository, PostRepository postRepository, PostMapper postMapper, AuthService authService, CommentRepository commentRepository, InteractionService interactionService) {
         this.likeRepository = likeRepository;
         this.favoriteRepository = favoriteRepository;
         this.postRepository = postRepository;
         this.postMapper = postMapper;
         this.authService = authService;
-      //  this.notificationService = notificationService;
-        this.commentRepository= commentRepository;
+        this.commentRepository = commentRepository;
+        this.interactionService = interactionService;
     }
-
 
     //Get
     @GetMapping("/postById/{id}")
@@ -97,7 +94,6 @@ public class PostController {
       Long currentUserId = authService.getCurrentUserId();
 
             List<Post> p = postRepository.findAllUserPosts(id);
-            System.out.println("Backend returning " + p.size() + " posts for ID " + id);
 
             if (p == null) {
                 return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -184,7 +180,16 @@ public class PostController {
             }
 
             postRepository.save(post);
+
+            interactionService.notifyFollowersOnNewContent(
+                    user.getId(),
+                    user.getName(),
+                    post.getId(),
+                    ETargetType.POST
+            );
+
             PostResponseDTO responseDTO = postMapper.postToPostResponseDTO(post, user.getId(), likeRepository, favoriteRepository);
+
             return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 
         } catch (Exception e) {

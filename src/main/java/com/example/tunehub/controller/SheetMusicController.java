@@ -3,7 +3,6 @@ package com.example.tunehub.controller;
 import com.example.tunehub.dto.common.InstrumentResponseDTO;
 import com.example.tunehub.dto.sheetmusic.*;
 import com.example.tunehub.mapper.SheetMusicMapper;
-import com.example.tunehub.mapper.UsersMapper;
 import com.example.tunehub.model.*;
 import com.example.tunehub.repository.*;
 import com.example.tunehub.service.*;
@@ -27,8 +26,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/sheetMusic")
 public class SheetMusicController {
-    private final UsersMapper usersMapper;
-    private final UsersRepository usersRepository;
     private final SheetMusicRepository sheetMusicRepository;
     private final SheetMusicMapper sheetMusicMapper;
     private final AuthService authService;

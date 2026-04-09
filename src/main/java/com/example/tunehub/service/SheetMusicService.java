@@ -3,6 +3,7 @@ package com.example.tunehub.service;
 import com.example.tunehub.dto.sheetmusic.SheetMusicResponseDTO;
 import com.example.tunehub.dto.sheetmusic.SheetMusicUploadDTO;
 import com.example.tunehub.mapper.SheetMusicMapper;
+import com.example.tunehub.model.ETargetType;
 import com.example.tunehub.model.Instrument;
 import com.example.tunehub.model.SheetMusic;
 import com.example.tunehub.model.SheetMusicCategory;
@@ -24,6 +25,7 @@ public class SheetMusicService {
     private final AuthService authService;
     private final LikeRepository likeRepository;
     private final FavoriteRepository favoriteRepository;
+    private final  InteractionService interactionService;
 
     public SheetMusicResponseDTO upload(SheetMusicUploadDTO dto, MultipartFile file, MultipartFile image) throws Exception {
 
@@ -58,6 +60,13 @@ public class SheetMusicService {
         s.setCategories(categories);
 
         sheetMusicRepository.save(s);
+
+        interactionService.notifyFollowersOnNewContent(
+                s.getUser().getId(),
+                s.getUser().getName(),
+                s.getId(),
+                ETargetType.SHEET_MUSIC
+        );
 
         // Upload ONLY if exists
         if (file != null && !file.isEmpty()) {

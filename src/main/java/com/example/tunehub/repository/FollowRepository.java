@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import jakarta.persistence.LockModeType;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface FollowRepository extends JpaRepository<Follow, Long> {
 
@@ -17,6 +18,9 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     Optional<Follow> findByFollowerIdAndFollowingIdAndStatus(
             Long followerId, Long followingId, EFollowStatus status
     );
+
+    @Query("SELECT f.followerId FROM Follow f WHERE f.followingId = :followingId AND f.status = 'APPROVED'")
+    List<Long> findAllFollowerIdsByFollowingId(@Param("followingId") Long followingId);
 
     boolean existsByFollowerIdAndFollowingIdAndStatus(
             Long followerId, Long followingId, EFollowStatus status

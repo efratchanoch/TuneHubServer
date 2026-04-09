@@ -378,6 +378,35 @@ public class InteractionService {
         sendNotification(notification);
     }
 
+    /**
+     * Notifies all followers when a user uploads new content.
+     * @param creatorId   The ID of the user who uploaded the content.
+     * @param creatorName The name of the creator (for the notification message).
+     * @param entityId    The ID of the new Post or Sheet Music.
+     * @param contentType The type of content (e.g., "POST" or "SHEET_MUSIC").
+     */
+    public void notifyFollowersOnNewContent(Long creatorId, String creatorName, Long entityId, ETargetType targetType) {
+        // Fetch all follower IDs for this creator
+        List<Long> followerIds = followRepository.findAllFollowerIdsByFollowingId(creatorId);
+
+        // Iterate and send a notification to each follower
+        for (Long followerId : followerIds) {
+            NotificationEvent event = new NotificationEvent();
+            event.setRecipientId(followerId);
+            event.setSenderId(creatorId);
+
+            // Define the type so the Node.js service knows how to handle it
+            event.setType(targetType == ETargetType.POST ? "NEW_POST_FROM_FOLLOWING" : "NEW_SHEET_MUSIC_FROM_FOLLOWING");
+            event.setTargetType(targetType);
+            event.setEntityId(entityId);
+
+            String contentDisplayName = targetType == ETargetType.POST  ? "post" : "sheet music";
+            event.setContent(String.format("%s uploaded a new %s. Check it out!", creatorName, contentDisplayName));
+
+            // Send to RabbitMQ
+            sendNotification(event);
+        }
+    }
     // Favorites
     @Transactional
     public ResponseEntity<?> addFavorite(ETargetType targetType, Long targetId) {
