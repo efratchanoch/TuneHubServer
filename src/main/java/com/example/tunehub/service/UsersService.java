@@ -49,9 +49,10 @@ public class UsersService {
     private final UsersProfileCompleteMapper usersProfileCompleteMapper;
     private final LikeRepository likeRepository;
     private final FavoriteRepository favoriteRepository;
+    private final FollowRepository followRepository;
 
     @Autowired
-    public UsersService(UsersRepository usersRepository, UsersMapper usersMapper, RoleRepository roleRepository, AIChatService aiChatService, InstrumentRepository instrumentRepository, TeacherRepository teacherRepository, AuthService authService, TeacherMapper teacherMapper, JwtUtils jwtUtils, InteractionService interactionService, UsersProfileCompleteMapper usersProfileCompleteMapper, LikeRepository likeRepository, FavoriteRepository favoriteRepository) {
+    public UsersService(UsersRepository usersRepository, UsersMapper usersMapper, RoleRepository roleRepository, AIChatService aiChatService, InstrumentRepository instrumentRepository, TeacherRepository teacherRepository, AuthService authService, TeacherMapper teacherMapper, JwtUtils jwtUtils, InteractionService interactionService, UsersProfileCompleteMapper usersProfileCompleteMapper, LikeRepository likeRepository, FavoriteRepository favoriteRepository, FollowRepository followRepository) {
         this.usersRepository = usersRepository;
         this.usersMapper = usersMapper;
         this.roleRepository = roleRepository;
@@ -65,6 +66,7 @@ public class UsersService {
         this.usersProfileCompleteMapper = usersProfileCompleteMapper;
         this.likeRepository = likeRepository;
         this.favoriteRepository = favoriteRepository;
+        this.followRepository = followRepository;
     }
 
     public void setActive(Long userId, boolean active) {
@@ -220,6 +222,7 @@ public class UsersService {
                     "Email is required"
             );
         }
+
         String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
         if (!email.matches(emailRegex)) {
             throw new ResponseStatusException(
@@ -442,6 +445,8 @@ public class UsersService {
         dto.setTotalHearts(interactionService.getTotalHeartsCountUser(profileUser.getId()));
         dto.setTotalCommentsWritten(interactionService.getTotalCommentsWrittenByUser(profileUser.getId()));
         dto.setTotalCommentsReceived(interactionService.getTotalCommentsOnUserContent(profileUser.getId()));
+        dto.setFollowers(usersMapper.usersListToUsersProfileDTOList(followRepository.findAllFollowersByUserId(profileUser.getId())));
+        dto.setFollowing(usersMapper.usersListToUsersProfileDTOList(followRepository.findAllFollowingByUserId(profileUser.getId())));
 
         return dto;
     }

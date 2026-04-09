@@ -2,6 +2,7 @@ package com.example.tunehub.repository;
 
 import com.example.tunehub.model.EFollowStatus;
 import com.example.tunehub.model.Follow;
+import com.example.tunehub.model.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -44,4 +45,12 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
             @Param("userId") Long userId,
             @Param("status") EFollowStatus status
     );
+
+    // Retrieve all users who are following someone
+    @Query("SELECT u FROM Users u JOIN Follow f ON u.id = f.followerId WHERE f.followingId = :userId AND f.status = 'APPROVED'")
+    List<Users> findAllFollowersByUserId(@Param("userId") Long userId);
+
+    // Retrieve all users who are being followed
+    @Query("SELECT u FROM Users u JOIN Follow f ON u.id = f.followingId WHERE f.followerId = :userId AND f.status = 'APPROVED'")
+    List<Users> findAllFollowingByUserId(@Param("userId") Long userId);
 }

@@ -23,9 +23,11 @@ public class UsersProfileCompleteDTO {
     private Set<EUserType> userTypes;
     private List<InstrumentResponseDTO> instruments;
 
-
     private List<SheetMusicResponseDTO> sheetsMusic;
     private List<PostResponseDTO> posts;
+
+    private List<UsersProfileDTO> followers; // Those who follow me
+    private List<UsersProfileDTO> following; // Those I follow
 
     private String createdAt;
 
@@ -173,6 +175,22 @@ public class UsersProfileCompleteDTO {
 
     public boolean isOwnProfile() {
         return isOwnProfile;
+    }
+
+    public List<UsersProfileDTO> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(List<UsersProfileDTO> followers) {
+        this.followers = followers;
+    }
+
+    public List<UsersProfileDTO> getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(List<UsersProfileDTO> following) {
+        this.following = following;
     }
 
     public void setOwnProfile(boolean ownProfile) {
