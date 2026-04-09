@@ -2,7 +2,6 @@ package com.example.tunehub.service;
 
 import com.example.tunehub.dto.common.FavoriteItemDTO;
 import com.example.tunehub.dto.notification.NotificationEvent;
-import com.example.tunehub.dto.notification.NotificationSimpleDTO;
 import com.example.tunehub.dto.post.PostResponseDTO;
 import com.example.tunehub.dto.sheetmusic.SheetMusicResponseDTO;
 import com.example.tunehub.mapper.PostMapper;
@@ -103,9 +102,18 @@ public class InteractionService {
      * Generic dispatcher for all notification events across the TuneHub platform.
      * Ensures consistent communication with the Node.js Notification Microservice.
      */
-    private void sendNotification(Users recipient, Long senderId, String title, ETargetType targetType,
-                                  Map<String, String> metadata, String type, Long entityId, int newCount) {
+    private void sendNotification(NotificationEvent event) {
+        // Dispatching to RabbitMQ
+        try {
+            rabbitTemplate.convertAndSend(exchangeName, routingKey, event);
+        } catch (Exception e) {
+            // Fallback or log if the queue is unreachable
+            System.err.println("Failed to dispatch notification to RabbitMQ: " + e.getMessage());
+        }
+    }
 
+    public void setAndSendNotification(Users recipient, Long senderId, ETargetType targetType,
+                                              Map<String, String> metadata, String type, Long entityId, int newCount) {
         // Safety check: Don't notify the user about their own actions
         if (recipient == null) {
             return;
@@ -122,13 +130,7 @@ public class InteractionService {
         event.setEntityId(entityId);
         event.setCount(newCount);
 
-        // Dispatching to RabbitMQ
-        try {
-            rabbitTemplate.convertAndSend(exchangeName, routingKey, event);
-        } catch (Exception e) {
-            // Fallback or log if the queue is unreachable
-            System.err.println("Failed to dispatch notification to RabbitMQ: " + e.getMessage());
-        }
+        sendNotification(event);
     }
 
     /**
@@ -222,7 +224,7 @@ public class InteractionService {
             likeRepository.save(newLike);
             int newCount = updateLikesAndNotify(targetType, targetId);
 
-            sendNotification(owner, currentUserId, "New Interaction", targetType,
+            setAndSendNotification(owner, currentUserId, targetType,
                     getNotificationMetadata(targetType.toString(), "LIKE", newCount),
                     "LIKE_" + targetType, targetId, newCount);
 
@@ -251,7 +253,7 @@ public class InteractionService {
                 return new ResponseEntity<>("Content owner not found", HttpStatus.NOT_FOUND);
             }
 
-            sendNotification(owner, currentUserId, "New Interaction", targetType,
+            setAndSendNotification(owner, currentUserId, targetType,
                     getNotificationMetadata(targetType.toString(), "LIKE", newCount),
                     "LIKE_" + targetType, targetId, newCount);
 
@@ -287,7 +289,7 @@ public class InteractionService {
         metadata.put("title", "New follow request");
         metadata.put("content", follower.getName() + " want to follow you");
 
-        sendNotification(targetUser, follower.getId(), metadata.get("title"), ETargetType.USER,
+        setAndSendNotification(targetUser, follower.getId(), ETargetType.USER,
                 metadata, "FOLLOW_REQUEST_RECEIVED", follower.getId(), 0);
 
         return new ResponseEntity<>(EFollowStatus.PENDING, HttpStatus.ACCEPTED);
@@ -307,12 +309,22 @@ public class InteractionService {
         );
     }
 
-    public ResponseEntity<?> approveFollow(Long followerId) {
-        return approveOrRejectFollow(followerId, EFollowStatus.APPROVED, ENotificationType.FOLLOW_REQUEST_ACCEPTED);
+    public void approveFollow(Long followerId) {
+        Users currentUser = authService.getCurrentUser();
+
+        approveOrRejectFollow(followerId, EFollowStatus.APPROVED, ENotificationType.FOLLOW_REQUEST_ACCEPTED);
+
+        // Notify
+        notifyFollowRequestStatus(followerId, currentUser.getId(), currentUser.getName(), true);
     }
 
-    public ResponseEntity<?> rejectFollow(Long followerId) {
-        return approveOrRejectFollow(followerId, EFollowStatus.DENIED, ENotificationType.FOLLOW_REQUEST_RECEIVED);
+    public void rejectFollow(Long followerId) {
+        Users currentUser = authService.getCurrentUser();
+
+        approveOrRejectFollow(followerId, EFollowStatus.DENIED, ENotificationType.FOLLOW_REQUEST_RECEIVED);
+
+        // Notify
+        notifyFollowRequestStatus(followerId, currentUser.getId(), currentUser.getName(), false);
     }
 
     private ResponseEntity<?> approveOrRejectFollow(Long followerId, EFollowStatus newStatus, ENotificationType notify) {
@@ -335,6 +347,36 @@ public class InteractionService {
         }
     }
 
+    /**
+     * Updates the follow request status and notifies the requester.
+     * This method ensures the requester receives a clear notification about the outcome.
+     *
+     * @param followerId The ID of the user who sent the follow request.
+     * @param ownerId    The ID of the user who is approving/rejecting the request.
+     * @param ownerName  The display name of the owner to be included in the message.
+     * @param isApproved Boolean flag to determine the content of the notification.
+     */
+    public void notifyFollowRequestStatus(Long followerId, Long ownerId, String ownerName, boolean isApproved) {
+        NotificationEvent notification = new NotificationEvent();
+
+        // Set the recipient to the person who originally sent the request
+        notification.setRecipientId(followerId);
+
+        // Set the sender to the person who responded to the request
+        notification.setSenderId(ownerId);
+
+        // Use a specific type for status updates to allow 'Upsert' logic in the Notification Service
+        notification.setType("FOLLOW_REQUEST_STATUS_UPDATE");
+        notification.setTargetType(ETargetType.USER);
+
+        // Construct a dynamic message based on the decision
+        String status = isApproved ? "approved" : "rejected";
+        String message = String.format("%s has %s your follow request.", ownerName, status);
+
+        notification.setContent(message);
+
+        sendNotification(notification);
+    }
 
     // Favorites
     @Transactional
@@ -357,7 +399,7 @@ public class InteractionService {
             int newCount = favoriteRepository.countByTargetTypeAndTargetId(targetType, targetId);
 
             updateContentCount(targetType, targetId, newCount, false);
-            sendNotification(owner, currentUserId, "New Interaction", targetType,
+            setAndSendNotification(owner, currentUserId, targetType,
                     getNotificationMetadata(targetType.toString(), "FAVORITE", newCount),
                     "FAVORITE_" + targetType, targetId, newCount);
 
@@ -388,7 +430,7 @@ public class InteractionService {
             updateContentCount(targetType, targetId, newCount, false);
 
             updateContentCount(targetType, targetId, newCount, false);
-            sendNotification(owner, currentUserId, "New Interaction", targetType,
+            setAndSendNotification(owner, currentUserId, targetType,
                     getNotificationMetadata(targetType.toString(), "FAVORITE", newCount),
                     "FAVORITE_" + targetType, targetId, newCount);
 

@@ -90,7 +90,8 @@ public class InteractionController {
     public ResponseEntity<?> approveFollow(@PathVariable Long followerId) {
         try {
             authService.getCurrentUserId();
-            return interactionService.approveFollow(followerId);
+            interactionService.approveFollow(followerId);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (IllegalStateException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
@@ -102,7 +103,10 @@ public class InteractionController {
     public ResponseEntity<?> rejectFollow(@PathVariable Long followerId) {
         try {
             authService.getCurrentUserId();
-            return interactionService.rejectFollow(followerId);
+            interactionService.rejectFollow(followerId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (IllegalStateException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
