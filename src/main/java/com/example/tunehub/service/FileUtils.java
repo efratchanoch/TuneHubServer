@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.*;
 import java.util.Base64;
 import java.util.List;
@@ -182,6 +183,34 @@ public class FileUtils {
             e.printStackTrace();
             return null;
         }
+    }
+
+
+    /**
+     * Downloads an image from a specified URL and saves it to a local directory.
+     * This method generates a unique filename using UUID to prevent collisions
+     * and persists the byte stream to the IMAGES_FOLDER directory.
+     *
+     * @param imageUrl The absolute URL of the image to be downloaded.
+     * @return The uniquely generated filename (including extension) of the saved image.
+     * @throws IOException If an I/O error occurs during connection or file writing.
+     */
+    public static String downloadAndSaveImage(String imageUrl) throws IOException {
+
+        // Generate a unique identifier for the filename to ensure no overwrites
+        String fileName = UUID.randomUUID().toString() + ".jpg";
+
+        // Define the destination path within the IMAGES_FOLDER folder
+        Path targetPath = Paths.get(UPLOAD_DIRECTORY, IMAGES_FOLDER, fileName);
+
+
+        // Open an input stream from the URL and copy the data to the target path
+        // The try-with-resources block ensures the stream is closed automatically
+        try (InputStream in = new URL(imageUrl).openStream()) {
+            Files.copy(in, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        return fileName;
     }
 }
 

@@ -1,6 +1,7 @@
 package com.example.tunehub.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -21,6 +22,7 @@ public class Users {
 
     private String password;
 
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Column(columnDefinition = "TEXT")

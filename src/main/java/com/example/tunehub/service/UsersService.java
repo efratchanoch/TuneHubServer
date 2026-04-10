@@ -52,7 +52,8 @@ public class UsersService {
     private final FollowRepository followRepository;
 
     @Autowired
-    public UsersService(UsersRepository usersRepository, UsersMapper usersMapper, RoleRepository roleRepository, AIChatService aiChatService, InstrumentRepository instrumentRepository, TeacherRepository teacherRepository, AuthService authService, TeacherMapper teacherMapper, JwtUtils jwtUtils, InteractionService interactionService, UsersProfileCompleteMapper usersProfileCompleteMapper, LikeRepository likeRepository, FavoriteRepository favoriteRepository, FollowRepository followRepository) {
+    public UsersService(UsersRepository usersRepository, UsersMapper usersMapper, RoleRepository roleRepository, AIChatService aiChatService, InstrumentRepository instrumentRepository, TeacherRepository teacherRepository, AuthService authService, TeacherMapper teacherMapper, JwtUtils jwtUtils, InteractionService interactionService,
+                        UsersProfileCompleteMapper usersProfileCompleteMapper, LikeRepository likeRepository, FavoriteRepository favoriteRepository, FollowRepository followRepository) {
         this.usersRepository = usersRepository;
         this.usersMapper = usersMapper;
         this.roleRepository = roleRepository;
@@ -452,4 +453,76 @@ public class UsersService {
     }
 
 
+    public class GoogleLoginResult {
+        public ResponseCookie cookie;
+        public UsersProfileDTO profile;
+
+        public GoogleLoginResult(ResponseCookie cookie, UsersProfileDTO profile) {
+            this.cookie = cookie;
+            this.profile = profile;
+        }
+    }
+
+    /**
+     * Processes a user authenticated via Google OAuth2.
+     * If the user exists in the database, it logs them in.
+     * If not, it creates a new user account using Google profile information.
+     * * @param email   The user's email from Google.
+     *
+     * @param name    The user's full name from Google.
+     * @param picture The profile picture URL from Google.
+     * @return A GoogleLoginResult containing user data and access details.
+     */
+    public GoogleLoginResult processGoogleUser(String email, String name, String picture) {
+        // Check if the user already exists by email
+        Users user = usersRepository.findByEmail(email);
+
+        if (user == null) {
+            // 2. If user doesn't exist, create a new one
+            user = new Users();
+            user.setEmail(email);
+            user.setName(name);
+
+            // Since it's a social login, we set a random UUID as password
+            // to satisfy database constraints while keeping it secure.
+            String randomPassword = UUID.randomUUID().toString();
+            user.setPassword(new BCryptPasswordEncoder().encode(randomPassword));
+
+            try {
+                String localFileName = FileUtils.downloadAndSaveImage(picture);
+                user.setImageProfilePath(localFileName);
+            } catch (IOException e) {
+                user.setImageProfilePath(picture);
+            }
+            user.setCreatedAt(LocalDateTime.now());
+
+            // Set default User Type
+            Set<EUserType> types = new HashSet<>();
+            types.add(EUserType.MUSIC_LOVER);
+            user.setUserTypes(types);
+
+            // Assign default ROLE_USER
+            Set<Role> roles = new HashSet<>();
+            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            roles.add(userRole);
+            user.setRoles(roles);
+        }
+
+        user.setIsActive(true);
+
+        // Save the new user to the database
+        user = usersRepository.save(user);
+
+        CustomUserDetails userDetails = CustomUserDetails.build(user);
+        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        UsersProfileDTO profileDTO = usersMapper.usersToUsersProfileDTO(user);
+        return new GoogleLoginResult(jwtCookie, profileDTO);
+    }
 }

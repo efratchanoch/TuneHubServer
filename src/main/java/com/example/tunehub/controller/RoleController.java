@@ -1,9 +1,7 @@
 package com.example.tunehub.controller;
 
 import com.example.tunehub.dto.common.RoleDTO;
-import com.example.tunehub.mapper.RoleMapper;
 import com.example.tunehub.model.*;
-import com.example.tunehub.repository.NotificationRepository;
 import com.example.tunehub.repository.RoleRepository;
 import com.example.tunehub.repository.UsersRepository;
 import jakarta.transaction.Transactional;
@@ -17,16 +15,12 @@ import org.springframework.web.bind.annotation.*;
 public class RoleController {
 
     private final RoleRepository roleRepository;
-    private final RoleMapper roleMapper;
     private final UsersRepository usersRepository;
-    private final NotificationRepository notificationRepository;
 
     @Autowired
-    public RoleController(RoleRepository roleRepository, RoleMapper roleMapper, UsersRepository usersRepository, NotificationRepository notificationRepository) {
+    public RoleController(RoleRepository roleRepository, UsersRepository usersRepository) {
         this.roleRepository = roleRepository;
-        this.roleMapper = roleMapper;
         this.usersRepository = usersRepository;
-        this.notificationRepository = notificationRepository;
     }
 
     @PutMapping("/admin/{userId}/role")
@@ -64,7 +58,7 @@ public class RoleController {
             notification.setUser(user);
             notification.setMessage(notificationMessage);
             notification.setRead(false);
-            notificationRepository.save(notification);
+           // notificationRepository.save(notification);
 
             return ResponseEntity.ok().body("Role successfully updated to: " + newRoleString);
 

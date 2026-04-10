@@ -106,6 +106,8 @@ public class WebSecurityConfig {
                                         .requestMatchers("api/role/**").permitAll()
                                         .requestMatchers("/api/users/chat").permitAll()
                                         .requestMatchers("/api/search/**").authenticated()
+                                        .requestMatchers("/api/auth/**").permitAll()
+
                 );
 
         http.headers(headers -> headers
@@ -113,6 +115,7 @@ public class WebSecurityConfig {
                         "frame-ancestors 'self' http://localhost:4200;"
                 ))
         );
+        http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
         http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
         http.authenticationProvider(authenticationProvider());

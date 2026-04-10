@@ -17,6 +17,8 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 
     Users findUsersById(Long id);
 
+    Users findByEmail(String email);
+
     List<Users> findAllByNameContainingIgnoreCase(String name);
 
     List<Users> findTop5ByNameContainingIgnoreCaseAndUserTypesContaining(
